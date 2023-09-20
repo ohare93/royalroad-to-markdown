@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "@fsoc/royalroadl-api": "^0.15.0",
+    "@l1lly/royalroadl-api": "^0.14.0",
+    "ts-command-line-args": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.4.6",
+    "gts": "^5.0.1",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint"
+  }
+}
