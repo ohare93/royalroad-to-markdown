@@ -1,3 +1,7 @@
+The purpose of this repos is to add whole chapters of a RoyalRoad story into a second brain applicaiton, such as Logseq, Roam Research, or Obsidian, for the express purpose of making connections between characters / places / events / ideas. This is done via [[backlinks]].
+
+It is currently mainly setup for Outliners, but with very little work can accomodate any format desired.
+
 ## Setup
 
 ```bash
