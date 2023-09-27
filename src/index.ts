@@ -33,11 +33,13 @@ const formatChapter = (chapter: Chapter, withBullets: boolean) => {
   );
   content += `---\n\n`;
 
-  if (chapter.prenote) content += `${bulletOrNot} > ${chapter.prenote}\n`;
+  if (chapter.prenote)
+    content += `${bulletOrNot} #prenote\n> ${chapter.prenote}\n`;
 
   content += `${bulletOrNot} ${chapter.content}\n`;
 
-  if (chapter.postnote) content += `${bulletOrNot} > ${chapter.postnote}\n`;
+  if (chapter.postnote)
+    content += `${bulletOrNot} #postnote\n> ${chapter.postnote}\n`;
 
   return content;
 };
