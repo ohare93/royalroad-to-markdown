@@ -1,12 +1,25 @@
 import {
   boldToMarkdown,
+  escapeMarkdownCharacters,
   fixSpacing,
   fixSymbols,
   italicsToMarkdown,
+  linksToMarkdown,
   makeHiddenPartsVisible,
   removeHTMLTags,
   runAllHTMLReplacements,
 } from 'src/html';
+
+describe('Escape markdown characters', () => {
+  test.each([
+    [`It's a star: *`, `It's a star: \\*`],
+    [`It's an underscore: _`, `It's an underscore: \\_`],
+    [`Let's goooo *****_____`, `Let's goooo \\*\\*\\*\\*\\*\\_\\_\\_\\_\\_`],
+    [`<span style="italic">*</span>`, `<span style="italic">\\*</span>`],
+  ])('test', (startingText, expectedText) => {
+    expect(escapeMarkdownCharacters(startingText)).toEqual(expectedText);
+  });
+});
 
 describe('italics removal', () => {
   test.each([
@@ -63,7 +76,7 @@ describe('links to markdown', () => {
       `This is a link to [Google](https://www.google.com)`,
     ],
   ])('test', (startingText, expectedText) => {
-    expect(runAllHTMLReplacements(startingText)).toEqual(expectedText);
+    expect(linksToMarkdown(startingText)).toEqual(expectedText);
   });
 });
 
@@ -97,6 +110,7 @@ Line 2`,
       `test`,
     ],
     [`<span><span></span></span>`, ``],
+    [`<br>`, `\n`],
   ])('test', (startingText, expectedText) => {
     expect(fixSpacing(startingText)).toEqual(expectedText);
   });
@@ -130,6 +144,7 @@ describe('Run All HTML replacements', () => {
 <div>
 A link <a href="https://www.unittest.com/awards">this test</a>
 <em>Test</em> <strong>words</strong> with many symbols:&nbsp;&lt;&gt;
+*HELLO* it_is_me <span style="font-style: italic; font-family: &quot;Open Sans&quot;, sans-serif">*</span>
 </div>
 
 
@@ -142,6 +157,7 @@ A link <a href="https://www.unittest.com/awards">this test</a>
 
 A link [this test](https://www.unittest.com/awards)
 *Test* **words** with many symbols: <>
+\\*HELLO\\* it\\_is\\_me *\\**
 
 #hidden
 > Secret message

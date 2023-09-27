@@ -1,5 +1,6 @@
 export function runAllHTMLReplacements(html: string): string {
   const f = [
+    escapeMarkdownCharacters,
     italicsToMarkdown,
     boldToMarkdown,
     linksToMarkdown,
@@ -9,6 +10,10 @@ export function runAllHTMLReplacements(html: string): string {
     fixSymbols,
   ];
   return f.reduce((acc, fn) => fn(acc), html);
+}
+
+export function escapeMarkdownCharacters(html: string): string {
+  return html.replace(/([\*_])/g, '\\$1');
 }
 
 export function italicsToMarkdown(html: string): string {
@@ -57,6 +62,8 @@ export function makeHiddenPartsVisible(html: string) {
 export function fixSpacing(html: string): string {
   return (
     html
+      // br to newline
+      .replace(/<br>/g, '\n')
       // Remove double elements, like <div><div>
       .replace(/<(\/?\w)[^>]+>[\n\s]*?<\1[^>]+>/g, '')
       // Multi newlines to 1 newline
