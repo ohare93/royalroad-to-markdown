@@ -1,6 +1,7 @@
 const {RoyalRoadAPI} = require('@l1lly/royalroadl-api');
 import * as fs from 'fs';
 import {parse} from 'ts-command-line-args';
+import {runAllHTMLReplacements} from './html';
 
 const api = new RoyalRoadAPI();
 
@@ -15,27 +16,11 @@ interface Chapter {
   url: string;
 }
 
-const removeHTML = (html: string) =>
-  html
-    // Fix poor bold and italics placement
-    .replace(/<strong>\s/g, ' **')
-    .replace(/\s<\/strong>/g, '** ')
-    .replace(/<\/?strong>/g, '**')
-    .replace(/<em>\s/g, ' *')
-    .replace(/\s<\/em>/g, '* ')
-    .replace(/<\/?em>/g, '*')
-    // Replace secret hidden content
-    .replace(/<[^>]+style=\"display: none\"[^>]+>/, '#hidden\n> ')
-    // Remove HTML tags
-    .replace(/<[^>]+>/g, '')
-    // Remove other
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ')
-    // Add bullet points for markdown
-    .replace(/\n/g, '\n- ');
+// Add bullet points for markdown
+const addBullets = (html: string) => html.replace(/\n/g, '\n- ');
 
-const formatChapter = (chapter: Chapter) => {
+const formatChapter = (chapter: Chapter, withBullets: boolean) => {
+  const bulletOrNot = withBullets ? '-' : '';
   const frontmatter = {
     //release: chapter.releaseDate.toISOString(),
     url: chapter.url,
@@ -48,11 +33,11 @@ const formatChapter = (chapter: Chapter) => {
   );
   content += `---\n\n`;
 
-  if (chapter.prenote) content += `- > ${chapter.prenote}\n`;
+  if (chapter.prenote) content += `${bulletOrNot} > ${chapter.prenote}\n`;
 
-  content += `- ${chapter.content}\n`;
+  content += `${bulletOrNot} ${chapter.content}\n`;
 
-  if (chapter.postnote) content += `- > ${chapter.postnote}\n`;
+  if (chapter.postnote) content += `${bulletOrNot} > ${chapter.postnote}\n`;
 
   return content;
 };
@@ -87,6 +72,7 @@ interface IDownloadRRArguments {
   all?: boolean;
   latest?: number;
   chapters?: number[];
+  bullets?: boolean;
   overwrite?: boolean;
   help?: boolean;
 }
@@ -98,6 +84,7 @@ export const args = parse<IDownloadRRArguments>(
     all: {type: Boolean, optional: true},
     latest: {type: Number, optional: true},
     chapters: {type: Number, multiple: true, optional: true},
+    bullets: {type: Boolean, optional: true},
     overwrite: {type: Boolean, optional: true},
     help: {
       type: Boolean,
@@ -168,13 +155,15 @@ interface RRChapter {
       title: chap.title,
       prenote: chapterData.preNote,
       postnote: chapterData.postNote,
-      content: removeHTML(chapterData.content),
+      content: runAllHTMLReplacements(chapterData.content),
       releaseDate: new Date(chap.release as number),
       url: getChapterUrl(chap.id, chap.title, args.id, args.name),
     };
     chapters.push(chapter);
 
-    const content = formatChapter(chapter);
+    if (!!args.bullets) chapter.content = addBullets(chapter.content);
+
+    const content = formatChapter(chapter, !!args.bullets);
     writeToFile(dir + '/' + filename, content);
   }
   //console.log(chapters);
