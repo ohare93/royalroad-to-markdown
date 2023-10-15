@@ -1,7 +1,7 @@
 const {RoyalRoadAPI} = require('@l1lly/royalroadl-api');
-import * as fs from 'fs';
 import {parse} from 'ts-command-line-args';
-import {runAllHTMLReplacements} from './html';
+import {runAllHTMLReplacements} from './helpers/html';
+import {createPathIfNotExists, pathExists, writeToFile} from './helpers/files';
 
 const api = new RoyalRoadAPI();
 
@@ -54,9 +54,6 @@ const formatUrlString = (url: string) =>
     .replace(/[^a-z0-9-]/g, '')
     .trim();
 
-const writeToFile = (filename: string, data: string) =>
-  fs.writeFileSync(filename, data, {encoding: 'utf8', flag: 'w'});
-
 const getChapterUrl = (
   id: number,
   chapterTitle: string,
@@ -71,6 +68,7 @@ const getChapterUrl = (
 interface IDownloadRRArguments {
   id: number;
   name: string;
+  folder?: string;
   all?: boolean;
   latest?: number;
   chapters?: number[];
@@ -83,6 +81,11 @@ export const args = parse<IDownloadRRArguments>(
   {
     id: Number,
     name: String,
+    folder: {
+      type: String,
+      optional: true,
+      description: 'Defaults to fictions/{name}/chapters',
+    },
     all: {type: Boolean, optional: true},
     latest: {type: Number, optional: true},
     chapters: {type: Number, multiple: true, optional: true},
@@ -130,17 +133,16 @@ interface RRChapter {
     }
   }
 
-  const dir = 'fictions/' + escapeFilename(args.name) + '/chapters';
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, {recursive: true});
-  }
+  const dir =
+    args.folder || 'fictions/' + escapeFilename(args.name) + '/chapters';
+  createPathIfNotExists(dir);
 
   const chapters: Chapter[] = [];
   for (const chap of chapterToDownload) {
     const paddedCount = chap.count.toString().padStart(4, '0');
     const filename = escapeFilename(`${paddedCount} ${chap.title}`) + '.md';
 
-    if (!args.overwrite && fs.existsSync(dir + '/' + filename)) {
+    if (!args.overwrite && pathExists(dir + '/' + filename)) {
       console.log(
         `Skipping ${filename} as already exists. Add --overwrite to change that`
       );

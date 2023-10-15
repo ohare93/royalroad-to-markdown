@@ -8,7 +8,7 @@ import {
   makeHiddenPartsVisible,
   removeHTMLTags,
   runAllHTMLReplacements,
-} from 'src/html';
+} from 'src/helpers/html';
 
 describe('Escape markdown characters', () => {
   test.each([
