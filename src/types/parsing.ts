@@ -1,11 +1,12 @@
 import {pathExists, pathToFiles} from 'src/helpers/files';
 import {ILinkWithAliases} from './linkWithAliases';
+import {MarkdownFile, getFile} from './files';
 
 export interface IMakeLinksArguments {
   linkStrings?: string[];
   linkFromFiles?: string[];
   linkFromDirectory?: string;
-  //linkfromrecursive?: string;
+  linkFromRecursive?: boolean;
   //linkfromexcludecontains?: string;
   //linkfromexcludepaths?: string[];
   //linkfromusealiases?: boolean;
@@ -41,6 +42,7 @@ export function parseArgs(args: IMakeLinksArguments): IParsedArgs {
   const linkStrings = args.linkStrings || [];
   const linkFromFiles = args.linkFromFiles || [];
   const linkFromDirectory = args.linkFromDirectory || '';
+  const linkFromRecursive = args.linkFromRecursive || false;
 
   const linksWithAliases: ILinkWithAliases[] = [];
 
@@ -51,7 +53,17 @@ export function parseArgs(args: IMakeLinksArguments): IParsedArgs {
   for (const linkFromFile of linkFromFiles) {
     if (!pathExists(linkFromFile))
       throw new Error(`File ${linkFromFile} does not exist.`);
-    linksWithAliases.push(new ILinkWithAliases(linkFromFile, []));
+
+    const linkWithAlias = fileToAliases(linkFromFile);
+    if (linkWithAlias) linksWithAliases.push(linkWithAlias);
+  }
+
+  if (!pathExists(linkFromDirectory))
+    throw new Error(`File ${linkFromDirectory} does not exist.`);
+
+  for (const filename of pathToFiles(linkFromDirectory, linkFromRecursive)) {
+    const linkWithAlias = fileToAliases(filename);
+    if (linkWithAlias) linksWithAliases.push(linkWithAlias);
   }
 
   let toLinkFiles = args.toLinkFiles || [];
@@ -74,4 +86,11 @@ export function parseArgs(args: IMakeLinksArguments): IParsedArgs {
   }
 
   return {linksWithAliases, toLinkFiles, markdownExcludeFrontmatter};
+}
+
+export function fileToAliases(filename: string): ILinkWithAliases | null {
+  const file = getFile(filename, true);
+  if (file.shouldSkipAutoLink()) return null;
+  console.log(filename, file);
+  return new ILinkWithAliases(file.filename, file.getAliases());
 }

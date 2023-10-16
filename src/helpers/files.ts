@@ -20,6 +20,7 @@ export function createPathIfNotExists(path: string) {
 
 export function pathToFiles(directory: string, recursive: boolean) {
   return fs
-    .readdirSync(directory, {recursive})
-    .map(file => `${directory}/${file}`);
+    .readdirSync(directory, {recursive, withFileTypes: true})
+    .filter(file => file.isFile())
+    .map(file => `${directory}/${file.name}`);
 }

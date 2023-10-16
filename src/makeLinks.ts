@@ -7,6 +7,7 @@ export const args = parse<IMakeLinksArguments>(
     linkStrings: {type: String, multiple: true, optional: true},
     linkFromFiles: {type: String, multiple: true, optional: true},
     linkFromDirectory: {type: String, optional: true},
+    linkFromRecursive: {type: Boolean, optional: true},
     toLinkFiles: {type: String, multiple: true, optional: true},
     toLinkDirectory: {type: String, optional: true},
     toLinkRecursive: {type: Boolean, optional: true},

@@ -1,4 +1,4 @@
-import {linkNameInText, linkAliasInText} from 'src/links/links';
+import {linkNameInText} from 'src/links/links';
 
 describe('Link Name', () => {
   test.each([
@@ -36,14 +36,11 @@ describe('Link Name', () => {
   });
 });
 
-describe('Link Alias', () => {
+describe('Manual Aliases stay', () => {
   test.each([
-    ['Samuel Alden Thorn', '[Alden]([[Samuel Alden Thorn]])'],
     ['[A guy]([[Alden]])', '[A guy]([[Alden]])'],
     ['[Alden]([[Alden Thorn]])', '[Alden]([[Alden Thorn]])'],
   ])('A name with aliases', (startingText, expectedText) => {
-    expect(
-      linkAliasInText(startingText, 'Samuel Alden Thorn', 'Alden')
-    ).toEqual(expectedText);
+    expect(linkNameInText(startingText, 'Alden')).toEqual(expectedText);
   });
 });

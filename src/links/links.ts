@@ -31,10 +31,7 @@ export function updateFileContent(
 ) {
   for (const linkWithAliases of linksWithAliases) {
     for (const linkString of linkWithAliases.aliases) {
-      content =
-        linkString == linkWithAliases.filename
-          ? linkNameInText(content, linkString)
-          : linkAliasInText(content, linkString, linkWithAliases.filename);
+      content = linkNameInText(content, linkString);
     }
   }
 
@@ -43,18 +40,21 @@ export function updateFileContent(
 
 export function linkNameInText(text: string, linkString: string) {
   return text.replace(
-    new RegExp(String.raw`(?<!\[\[)\b(${linkString})\b(?![\w\s]*\]\])`, 'gi'),
+    new RegExp(
+      String.raw`(?<!\[\[)\b(${linkString})\b(?![\w\s]*\]\]|\]\(\[\[)`,
+      'gi'
+    ),
     '[[$1]]'
   );
 }
 
-export function linkAliasInText(
-  text: string,
-  linkString: string,
-  nameToLinkTo: string
-) {
-  return text.replace(
-    new RegExp(String.raw`(?<!\[)\b(${linkString})\b(?!\]\(\[\[)`, 'gi'),
-    `[${nameToLinkTo}]([[$1]])`
-  );
-}
+// export function linkAliasInText(
+//   text: string,
+//   linkString: string,
+//   nameToLinkTo: string
+// ) {
+//   return text.replace(
+//     new RegExp(String.raw`(?<!\[)\b(${linkString})\b(?!\]\(\[\[)`, 'gi'),
+//     `[${nameToLinkTo}]([[$1]])`
+//   );
+// }
