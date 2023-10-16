@@ -23,19 +23,3 @@ export function pathToFiles(directory: string, recursive: boolean) {
     .readdirSync(directory, {recursive})
     .map(file => `${directory}/${file}`);
 }
-
-export function fileIsMarkdown(file: string) {
-  return file.endsWith('.md');
-}
-
-export function splitFrontmatter(content: string) {
-  const parts = content.split('---');
-  if (!content.startsWith('---') && parts.length !== 3) {
-    return {content: content, frontmatter: ''};
-  }
-  return {content: parts[2], frontmatter: parts[1]};
-}
-
-export function joinFrontmatter(frontmatter: string, content: string) {
-  return `---${frontmatter}---${content}`;
-}

@@ -1,5 +1,6 @@
 import {parse} from 'ts-command-line-args';
-import {IMakeLinksArguments, makeLinks} from './links/links';
+import {makeLinksInFiles} from './links/links';
+import {IMakeLinksArguments, parseArgs} from './types/parsing';
 
 export const args = parse<IMakeLinksArguments>(
   {
@@ -22,4 +23,4 @@ export const args = parse<IMakeLinksArguments>(
   }
 );
 
-makeLinks(args);
+makeLinksInFiles(parseArgs(args));

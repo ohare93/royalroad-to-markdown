@@ -1,6 +1,6 @@
-import {linkRegex} from 'src/links/links';
+import {linkNameInText, linkAliasInText} from 'src/links/links';
 
-describe('Link Regex', () => {
+describe('Link Name', () => {
   test.each([
     ['Alden', '[[Alden]]'],
     ['alden', '[[alden]]'],
@@ -12,9 +12,9 @@ describe('Link Regex', () => {
     ['Aldenallinoneword', 'Aldenallinoneword'],
     ['WhatanameAldenis', 'WhatanameAldenis'],
   ])('A characters name', (startingText, expectedText) => {
-    expect(linkRegex(startingText, 'Alden')).toEqual(expectedText);
-    expect(linkRegex(startingText, 'alden')).toEqual(expectedText);
-    expect(linkRegex(startingText, 'ALDEN')).toEqual(expectedText);
+    expect(linkNameInText(startingText, 'Alden')).toEqual(expectedText);
+    expect(linkNameInText(startingText, 'alden')).toEqual(expectedText);
+    expect(linkNameInText(startingText, 'ALDEN')).toEqual(expectedText);
   });
 
   test.each([
@@ -23,15 +23,27 @@ describe('Link Regex', () => {
       'My skill is called [[Cook of the Moment]].',
     ],
   ])('A Name with a space', (startingText, expectedText) => {
-    expect(linkRegex(startingText, 'Cook of the Moment')).toEqual(expectedText);
+    expect(linkNameInText(startingText, 'Cook of the Moment')).toEqual(
+      expectedText
+    );
   });
 
-  test.each([['Samuel Alden Thorn', '[Alden]([[Samuel Alden Thorn]])']])(
-    'A name with aliases',
-    (startingText, expectedText) => {
-      expect(linkRegex(startingText, 'Samuel Alden Thorn', 'Alden')).toEqual(
-        expectedText
-      );
-    }
-  );
+  test.each([
+    ['[[Samuel Alden Thorn]]', '[[Samuel Alden Thorn]]'],
+    ['[[Alden Thorn]]', '[[Alden Thorn]]'],
+  ])('Dont make links in links', (startingText, expectedText) => {
+    expect(linkNameInText(startingText, 'Alden')).toEqual(expectedText);
+  });
+});
+
+describe('Link Alias', () => {
+  test.each([
+    ['Samuel Alden Thorn', '[Alden]([[Samuel Alden Thorn]])'],
+    ['[A guy]([[Alden]])', '[A guy]([[Alden]])'],
+    ['[Alden]([[Alden Thorn]])', '[Alden]([[Alden Thorn]])'],
+  ])('A name with aliases', (startingText, expectedText) => {
+    expect(
+      linkAliasInText(startingText, 'Samuel Alden Thorn', 'Alden')
+    ).toEqual(expectedText);
+  });
 });
